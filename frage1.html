@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frage 1</title>
+</head>
+<body>
+<h1>Frage 1</h1>
+<form onsubmit="return false">
+    <label for="benutzerName">Name:</label>
+    <input type="text" id="benutzerName" name="benutzerName" required>
+    <br><br>
+    <p>Was ist 1+2?</p>
+    <input type="radio" id="antwort1" name="antwort" value="3"> 3<br>
+    <input type="radio" id="antwort2" name="antwort" value="4"> 4<br>
+    <input type="radio" id="antwort3" name="antwort" value="5"> 5<br><br>
+    <button onclick="speichern()">Absenden</button>
+</form>
+
+<script>
+function speichern() {
+    const benutzerName = document.getElementById("benutzerName").value;
+    const antwort = document.querySelector('input[name="antwort"]:checked').value;
+    localStorage.setItem("benutzerName", benutzerName);
+    localStorage.setItem("frage1Antwort", antwort);
+    localStorage.setItem("frage1Punktzahl", antwort === "3" ? "5" : "0");
+    window.location.href = "frage2.html";
+}
+</script>
+</body>
+</html>

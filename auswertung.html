@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auswertung</title>
+<script src="js/pdf-lib.js"></script> <!-- Pfad zur lokalen pdf-lib.js-Datei einfügen -->
+</head>
+<body>
+<h1>Auswertung</h1>
+<div id="auswertung">
+    <!-- Hier kannst du den vorhandenen Text und HTML-Code einfügen -->
+    <p>Frage 1: Antwort - <span id="antwort1"></span>, Punktzahl - <span id="punktzahl1"></span></p>
+    <p>Frage 2: Antwort - <span id="antwort2"></span>, Punktzahl - <span id="punktzahl2"></span></p>
+</div>
+
+<div id="hinweis"></div>
+
+<script>
+// Funktion zum Laden der Werte aus dem Local Storage
+function loadLocalStorageValues() {
+    document.getElementById("antwort1").textContent = localStorage.getItem("frage1Antwort");
+    document.getElementById("punktzahl1").textContent = localStorage.getItem("frage1Punktzahl");
+    document.getElementById("antwort2").textContent = localStorage.getItem("frage2Antwort");
+    document.getElementById("punktzahl2").textContent = localStorage.getItem("frage2Punktzahl");
+}
+
+function zurueck() {
+    window.location.href = "frage1.html";
+}
+
+// Beim Laden der Seite, Werte aus dem Local Storage laden
+window.onload = function() {
+    loadLocalStorageValues();
+    const gesamtPunktzahl = parseInt(localStorage.getItem("frage1Punktzahl")) + parseInt(localStorage.getItem("frage2Punktzahl"));
+    if (gesamtPunktzahl >= 10) {
+        const benutzerName = localStorage.getItem("benutzerName");
+        document.getElementById("auswertung").innerHTML += `<p>Herzlichen Glückwunsch, ${benutzerName}! Sie haben den Test bestanden!</p>`;
+        document.getElementById("auswertung").innerHTML += `<button onclick="exportAsPDF()">Als PDF exportieren</button>`;
+    } else {
+        document.getElementById("hinweis").innerHTML = `Du hast nicht die benötigte Punktzahl erreicht.`;
+        const falschBeantwortet = [];
+        const antwortFrage1 = localStorage.getItem("frage1Antwort");
+        const antwortFrage2 = localStorage.getItem("frage2Antwort");
+        if (antwortFrage1 !== "3") {
+            falschBeantwortet.push("Frage 1");
+        }
+        if (antwortFrage2 !== "Weiß") {
+            falschBeantwortet.push("Frage 2");
+        }
+        if (falschBeantwortet.length > 0) {
+            document.getElementById("hinweis").innerHTML += `<p>Du hast die folgenden Fragen falsch beantwortet: ${falschBeantwortet.join(", ")}</p>`;
+        }
+        document.getElementById("auswertung").innerHTML += `<button id="zurueckBtn" onclick="zurueck()">Zurück zum Test</button>`;
+    }
+};
+
+async function exportAsPDF() {
+    const antwortFrage1 = localStorage.getItem("frage1Antwort");
+    const antwortFrage2 = localStorage.getItem("frage2Antwort");
+    const gesamtPunktzahl = parseInt(localStorage.getItem("frage1Punktzahl")) + parseInt(localStorage.getItem("frage2Punktzahl"));
+    const falschBeantwortet = [];
+
+    if (antwortFrage1 !== "3") {
+        falschBeantwortet.push("Frage 1");
+    }
+    if (antwortFrage2 !== "Weiß") {
+        falschBeantwortet.push("Frage 2");
+    }
+
+    // Erstelle ein neues PDF-Dokument
+    const pdfDoc = await PDFLib.PDFDocument.create();
+    const page = pdfDoc.addPage();
+
+    // Definiere den PDF-Inhalt
+    let pdfContent = `Auswertung\n\n`;
+    pdfContent += `Frage 1: Antwort - ${antwortFrage1}, Punktzahl - ${localStorage.getItem("frage1Punktzahl")}\n`;
+    pdfContent += `Frage 2: Antwort - ${antwortFrage2}, Punktzahl - ${localStorage.getItem("frage2Punktzahl")}\n`;
+    pdfContent += `Gesamtpunktzahl: ${gesamtPunktzahl}\n\n`;
+
+    // Falls Fragen falsch beantwortet wurden, Hinweis hinzufügen
+    if (falschBeantwortet.length > 0) {
+        pdfContent += `Du hast die folgenden Fragen falsch beantwortet: ${falschBeantwortet.join(", ")}\n\n`;
+    }
+
+    // Falls Benutzer bestanden hat, Glückwunschnachricht hinzufügen
+    if (gesamtPunktzahl >= 10) {
+        const benutzerName = localStorage.getItem("benutzerName");
+        pdfContent += `Herzlichen Glückwunsch, ${benutzerName}! Sie haben den Test bestanden!\n\n`;
+    }
+
+    // Datum und Uhrzeit hinzufügen
+    const now = new Date();
+    const timestamp = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+    pdfContent += `Exportiert am: ${timestamp}\n`;
+
+    // Text zum PDF-Dokument hinzufügen
+    const { width, height } = page.getSize();
+    const fontSize = 12;
+    const textFont = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+    page.drawText(pdfContent, {
+        x: 50,
+        y: height - 50,
+        font: textFont,
+        size: fontSize,
+    });
+
+    // PDF als ArrayBuffer exportieren
+    const pdfBytes = await pdfDoc.save();
+
+    // PDF herunterladen
+    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.download = 'zertifikat.pdf';
+    link.click();
+}
+</script>
+</body>
+</html>
