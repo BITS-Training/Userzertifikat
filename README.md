@@ -6,3 +6,5 @@ Wir wollen hier erkunden, ob es eine Möglichkeit gibt, dass die Benutzer:innen 
 Eine Idee ist die Verwendung der localStorage-Funktion, vgl. https://www.kaempf-nk.de/webseitengestaltung/blog/html5-localstorage-in-der-praxis.html
 
 Für BITS-hugo gibt es ein entsprechendes Issue https://github.com/BITS-Training/BITS-hugo/issues/88
+
+Aktueller Preview des Development-Branchs unter https://bits-training.github.io/Userzertifikat/
