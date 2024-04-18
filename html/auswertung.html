@@ -26,7 +26,15 @@ function loadLocalStorageValues() {
 }
 
 function zurueck() {
-    window.location.href = "frage1.html";
+    // Überprüfen, ob Frage 1 falsch beantwortet wurde
+    const antwortFrage1 = localStorage.getItem("frage1Antwort");
+    if (antwortFrage1 !== "3") {
+        // Wenn ja, zurück zu Frage 1
+        window.location.href = "frage1.html";
+    } else {
+        // Sonst zurück zu Frage 2
+        window.location.href = "frage2.html";
+    }
 }
 
 // Beim Laden der Seite, Werte aus dem Local Storage laden
@@ -50,8 +58,8 @@ window.onload = function() {
         }
         if (falschBeantwortet.length > 0) {
             document.getElementById("hinweis").innerHTML += `<p>Du hast die folgenden Fragen falsch beantwortet: ${falschBeantwortet.join(", ")}</p>`;
+            document.getElementById("hinweis").innerHTML += `<button id="zurueckBtn" onclick="zurueck()">Zurück zum Test</button>`;
         }
-        document.getElementById("auswertung").innerHTML += `<button id="zurueckBtn" onclick="zurueck()">Zurück zum Test</button>`;
     }
 };
 
@@ -114,6 +122,13 @@ async function exportAsPDF() {
     link.href = window.URL.createObjectURL(blob);
     link.download = 'zertifikat.pdf';
     link.click();
+
+    // Löschen der spezifischen Daten im LocalStorage
+    localStorage.removeItem("frage1Antwort");
+    localStorage.removeItem("frage2Antwort");
+    localStorage.removeItem("frage1Punktzahl");
+    localStorage.removeItem("frage2Punktzahl");
+    localStorage.removeItem("benutzerName");
 }
 </script>
 </body>
